@@ -41,5 +41,76 @@ Tipus: JWT (JSON Web Tokens), OAuth, Bearer Tokens o SAML (Security Assertion Ma
 Funcionalitat: Primer l'usuari es registre, i si el registre es vàlid es genera una token. Després, aquest token s'utilitza per verificar l'usuari a la capçalera HTTP, després es verifica el token i per últim el servidor envia la resposta a l'usuari.
 Llibreries: ASP.NET Core Identity, System.IdentityModel.Tokens.Jwt i Microsoft.AspNetCore.Authentication.JwtBearer, entre d'altres.
 
+## Ex5
+using System.Security.Cryptography;
+using System.Text;
+public class Program
+{
+	public static string computedHash;
+	public static void Main(string[] args)
+	{
+    	bool running = true;
+    	while (running) {
+        	Console.WriteLine("1: Registrar\n2:Verificar\n3:Xifrar text");
+    	int usernum = int.Parse(Console.ReadLine());
+        	switch (usernum) {
+            	case 1: computedHash = CalculateSHA256();
+                	Console.WriteLine(computedHash);
+                	break;
+            	case 2: Console.WriteLine(IsValidAuth());
+                	break;
+            	case 3: XifraIDesxifra(); break;
+            	default: break;
+        	}
+        	if (usernum == -1)
+        	{
+            	running=false;
+        	}
+        	Console.ReadKey();
+        	Console.Clear();
+    	}
+	}
+	public static string CalculateSHA256()
+	{
+    	Console.WriteLine("Usuari");
+    	string user = Console.ReadLine();
+    	Console.WriteLine("Contrasenya");
+    	string password = Console.ReadLine();
+    	var hash=SHA256.HashData(System.Text.UTF8Encoding.UTF8.GetBytes(user +":" + password));
+    	return BitConverter.ToString(hash);
+	}
+	public static bool IsValidAuth()
+	{
+    	Console.WriteLine("Usuari");
+    	string user = Console.ReadLine();
+    	Console.WriteLine("Contrasenya");
+    	string password = Console.ReadLine();
+    	var hash = SHA256.HashData(System.Text.UTF8Encoding.UTF8.GetBytes(user + ":" + password));
+    	return BitConverter.ToString(hash)==computedHash;
+	}
+	public static void XifraIDesxifra()
+	{
+    	Console.WriteLine("Text a xifrar:");
+    	string input = Console.ReadLine();
+
+    	using (RSA rsa = RSA.Create(2048))
+    	{
+        	byte[] dadesOriginals = Encoding.UTF8.GetBytes(input);
+        	byte[] dadesXifrades = rsa.Encrypt(dadesOriginals, RSAEncryptionPadding.Pkcs1);
+        	string hexXifrat = BitConverter.ToString(dadesXifrades).Replace("-", "");
+        	Console.WriteLine($"\nText xifrat (hex):\n{hexXifrat}");
+        	byte[] dadesDesxifrades = rsa.Decrypt(dadesXifrades, RSAEncryptionPadding.Pkcs1);
+        	string textDesxifrat = Encoding.UTF8.GetString(dadesDesxifrades);
+        	Console.WriteLine($"\nText desxifrat:\n{textDesxifrat}");
+    	}
+
+
+	}
+}
+
+
+
+
+
 ## Ex6 (bibliografia):
 No he necessitat consultar res, ja que algú que treballa en ciberseguretat m'ha ajudat a fer el treball.
